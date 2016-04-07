@@ -46,7 +46,7 @@ var isBreaker = function(word) {
 };
 
 var prototype = node.derive({
-    load: function(runs, takeFocus) {
+    load: function(runs, takeFocus, carotPosition) {
         var self = this;
         this.undo = [];
         this.redo = [];
@@ -56,7 +56,7 @@ var prototype = node.derive({
         }).all();
         this.layout();
         this.contentChanged.fire();
-        this.select(0, 0, takeFocus);
+        this.select(carotPosition, carotPosition, takeFocus);
     },
     layout: function() {
         this.frame = null;
