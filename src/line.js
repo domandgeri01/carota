@@ -44,6 +44,9 @@ var prototype = node.derive({
 module.exports = function(doc, left, width, baseline, ascent, descent, words, ordinal) {
 
     var align = words[0].align();
+	if (align === undefined) {
+		align = runs.defaultFormatting.align;
+	}
 
     var line = Object.create(prototype, {
         doc: { value: doc }, // should be called frame, or else switch to using parent on all nodes
