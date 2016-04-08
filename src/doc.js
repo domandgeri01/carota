@@ -57,9 +57,25 @@ var prototype = node.derive({
         this.words = per(characters(runs)).per(split(self.codes)).map(function(w) {
             return word(w, self.codes);
         }).all();
+
+        // Hack to remove any excess return characters that carota is inserting at the
+        // end of the canvas.
+        while (this.words.length >= 2 
+            && (this.words[this.words.length - 2].text.plainText.charCodeAt(0) === 10
+                || this.words[this.words.length - 2].text.plainText.charCodeAt(0) === 13)
+        ) {
+            this.words.splice(this.words.length - 2, 1);
+    }
+	
         this.layout();
         this.contentChanged.fire();
         this.select(carotPosition, carotPosition, takeFocus);
+    },
+    setDefaultFormat: function (defaults) {
+        var cloneOfDefaults = JSON.parse(JSON.stringify(runs.defaultFormat));
+        // clone
+        Object.keys(defaults).forEach(function(key) { cloneOfDefaults[key] = defaults[key]; });
+        runs.defaultFormatting = cloneOfDefaults;
     },
     layout: function() {
         this.frame = null;
@@ -193,7 +209,6 @@ var prototype = node.derive({
                 return word(w, self.codes);
             })
             .all();
-
         // Check if old or new content contains any fancy control codes:
         var runFilters = false;
 
@@ -385,11 +400,13 @@ var prototype = node.derive({
             // Something has gone terribly wrong - doc.transaction will rollback soon
             return;
         }
+
         this.selection.start = Math.max(0, ordinal);
         this.selection.end = Math.min(
             typeof ordinalEnd === 'number' ? ordinalEnd : this.selection.start,
             this.frame.length - 1
         );
+		if (this.selection.end < this.selection.start) this.selection.start = this.selection.end;
         this.selectionJustChanged = true;
         this.caretVisible = true;
         this.nextInsertFormatting = {};
