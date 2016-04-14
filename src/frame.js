@@ -40,15 +40,18 @@ var prototype = node.derive({
     },
     draw: function(ctx, viewPort) {
         var top = viewPort ? viewPort.t : 0;
+		top = 0;
+		viewPort.t = 0;
         var bottom = viewPort ? (viewPort.t + viewPort.h) : Number.MAX_VALUE;
         this.lines.some(function(line) {
-            var b = line.bounds();
-            if (b.t + b.h < top) {
-                return false;
-            }
-            if (b.t > bottom) {
-                return true;
-            }
+            // var b = line.bounds();
+            // if (b.t + b.h < top) {
+            //     return false;
+            // }
+            // if (b.t > bottom) {
+            //     return true;
+            // }
+			viewPort.t = 0; 
             line.draw(ctx, viewPort);
         });
     },
@@ -56,7 +59,7 @@ var prototype = node.derive({
 });
 
 exports = module.exports = function(left, top, width, ordinal, parent,
-                                    includeTerminator, initialAscent, initialDescent) {
+                                    includeTerminator, initialAscent, initialDescent) {									
     var lines = [];
     var frame = Object.create(prototype, {
         lines: { value: lines },
