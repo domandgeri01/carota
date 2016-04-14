@@ -68,7 +68,7 @@ var prototype = node.derive({
     }
 	
         this.layout();
-        this.contentChanged.fire();
+        // this.contentChanged.fire();
         this.select(carotPosition, carotPosition, takeFocus);
     },
     setDefaultFormat: function (defaults) {
