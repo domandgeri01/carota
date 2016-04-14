@@ -324,9 +324,13 @@ exports.create = function(element) {
         canvas.style.width = logicalWidth + 'px';
         canvas.style.height = logicalHeight + 'px';
         
-        canvas.style.top = element.scrollTop + 'px';
+		// element.scrollTop + 'px';
+        canvas.style.top = '0px'; 
         spacer.style.width = logicalWidth + 'px';
-        spacer.style.height = Math.max(docHeight, element.clientHeight) + 'px';
+		
+		// In order to prevent the canvas moving if something goes wrong and the text extends beyond the bottom of the canvas.
+        // spacer.style.height = Math.max(docHeight, element.clientHeight) + 'px';
+		spacer.style.height = element.clientHeight + 'px';
 
         if (docHeight < (element.clientHeight - 50) &&
             doc.frame.actualWidth() <= availableWidth) {
@@ -341,7 +345,8 @@ exports.create = function(element) {
         ctx.clearRect(0, 0, logicalWidth, logicalHeight);
         ctx.translate(0, getVerticalOffset() - element.scrollTop);
         
-        doc.draw(ctx, rect(0, element.scrollTop, logicalWidth, logicalHeight));
+        // doc.draw(ctx, rect(0, element.scrollTop, logicalWidth, logicalHeight));
+		doc.draw(ctx, rect(0, 0, logicalWidth, logicalHeight));
         doc.drawSelection(ctx, selectDragStart || (document.activeElement === textArea));
     };
 
@@ -366,7 +371,8 @@ exports.create = function(element) {
         if (endChar) {
             var bounds = endChar.bounds();
             textAreaDiv.style.left = bounds.l + 'px';
-            textAreaDiv.style.top = bounds.t + 'px';
+            // textAreaDiv.style.top = bounds.t + 'px';
+            textAreaDiv.style.top = 0;
             textArea.focus();
             var scrollDownBy = Math.max(0, bounds.t + bounds.h -
                     (element.scrollTop + element.clientHeight));
