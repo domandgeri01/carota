@@ -324,8 +324,7 @@ exports.create = function(element) {
         canvas.style.width = logicalWidth + 'px';
         canvas.style.height = logicalHeight + 'px';
         
-		// element.scrollTop + 'px';
-        canvas.style.top = '0px'; 
+        canvas.style.top = '0px'; // element.scrollTop + 'px';
         spacer.style.width = logicalWidth + 'px';
 		
 		// In order to prevent the canvas moving if something goes wrong and the text extends beyond the bottom of the canvas.
@@ -465,7 +464,7 @@ exports.create = function(element) {
         }
 
         var now = new Date().getTime();
-        if (now > nextCaretToggle) {
+        if (now > nextCaretToggle && doc.active === true) {
             nextCaretToggle = now + 500;
             if (doc.toggleCaret()) {
                 requirePaint = true;
