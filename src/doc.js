@@ -364,7 +364,7 @@ var prototype = node.derive({
     },
     drawSelection: function(ctx, hasFocus) {
         if (this.selection.end === this.selection.start) {
-            if (this.selectionJustChanged || hasFocus && this.caretVisible) {
+            if (this.active && (this.selectionJustChanged || hasFocus && this.caretVisible)) {
                 var caret = this.getCaretCoords(this.selection.start);
                 if (caret) {
                     ctx.save();
@@ -408,7 +408,11 @@ var prototype = node.derive({
         );
 		if (this.selection.end < this.selection.start) this.selection.start = this.selection.end;
         this.selectionJustChanged = true;
-        this.caretVisible = true;
+		if (this.active === true) {
+			this.caretVisible = true;	
+		} else {
+			this.caretVisible = false;	
+		}
         this.nextInsertFormatting = {};
 
         /*  NB. always fire this even if the positions stayed the same. The
@@ -466,7 +470,8 @@ exports = module.exports = function() {
     var doc = Object.create(prototype);
     doc._width = 0;
     doc.selection = { start: 0, end: 0 };
-    doc.caretVisible = true;
+    doc.caretVisible = false;
+	doc.active = true;
     doc.customCodes = function(code, data, allCodes) {};
     doc.codes = function(code, data) {
         var instance = codes(code, data, doc.codes);
