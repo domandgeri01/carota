@@ -57,6 +57,7 @@ exports.getRunStyle = function(run) {
 
 var nbsp = exports.nbsp = String.fromCharCode(160);
 var enter = exports.enter = nbsp; // String.fromCharCode(9166);
+var averageWidth = null;
 
 /*  Returns width, height, ascent, descent in pixels for the specified text and font.
     The ascent and descent are measured from the baseline. Note that we add/remove
@@ -64,7 +65,7 @@ var enter = exports.enter = nbsp; // String.fromCharCode(9166);
     part of the cost, and if we left the hidden measuring node in the DOM then it
     would affect the dimensions of the whole page.
  */
-var measureText = exports.measureText = function(text, style) {
+var measureText = exports.measureText = function(text, style, recursing) {
     var span, block, div;
 
     span = document.createElement('span');
@@ -102,6 +103,25 @@ var measureText = exports.measureText = function(text, style) {
         div.parentNode.removeChild(div);
         div = null;
     }
+	
+	// Hack to apply the lineSize. This only works for one size per document.
+	if (runs.defaultFormatting.lineHeight !== undefined) {
+		result.ascent = parseInt(result.ascent * runs.defaultFormatting.lineHeight / 100, 10);
+		result.descent = parseInt(result.descent * runs.defaultFormatting.lineHeight / 100, 10);
+		result.height = result.ascent + result.descent;
+	}
+	
+	// Hack to apply word spacing. 
+	// Uses the width of an uppercase O as an average width to apply the word spacing to.
+	var averageWidth;
+	if (recursing !== true && runs.defaultFormatting.wordSpacing !== undefined) {
+		averageWidth = letterCache('O', style, true).width;
+		console.log(runs.defaultFormatting.wordSpacing);
+		var spacedWidth = parseInt(averageWidth * runs.defaultFormatting.wordSpacing / 100, 10);
+		var difference = spacedWidth - averageWidth;
+		result.width = parseInt(result.width, 10) + parseInt(difference, 10);
+	}
+	
     return result;
 };
 
@@ -124,16 +144,16 @@ var measureText = exports.measureText = function(text, style) {
 */
 var createCachedMeasureText = exports.createCachedMeasureText = function() {
     var cache = {};
-    return function(text, style) {
-        var key = style + '<>!&%' + text;
+    return function(text, style, recursing) {
+        var key = style + '<>!&%' + text + runs.defaultFormatting.lineHeight + runs.defaultFormatting.wordSpacing;
         var result = cache[key];
         if (!result) {
-            cache[key] = result = measureText(text, style);
+            cache[key] = result = measureText(text, style, recursing);
         }
         return result;
     };
 };
-
+var letterCache = createCachedMeasureText();
 exports.cachedMeasureText = createCachedMeasureText();
 
 exports.measure = function(str, formatting) {
