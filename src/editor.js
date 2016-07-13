@@ -23,13 +23,18 @@ exports.create = function(element) {
     if (dom.effectiveStyle(element, 'position') !== 'absolute') {
         element.style.position = 'relative';
     }
-
+	
+	// Hack to disable the text editor on mobile.
+	var disabled = '';
+	if (window.innerWidth <= 1080) {
+		disabled = 'disabled';
+	}
     element.innerHTML =
         '<div class="carotaSpacer">' +
             '<canvas width="100" height="100" class="carotaEditorCanvas" style="position: absolute;"></canvas>' +
         '</div>' +
         '<div class="carotaTextArea" style="overflow: hidden; position: absolute; height: 0;">' +
-            '<textarea autocorrect="off" autocapitalize="off" spellcheck="false" tabindex="0" ' +
+            '<textarea ' + disabled + ' autocorrect="off" autocapitalize="off" spellcheck="false" tabindex="0" ' +
             'style="position: absolute; padding: 0px; width: 1000px; height: 1em; ' +
             'outline: none; font-size: 4px;"></textarea>'
         '</div>';
@@ -372,7 +377,10 @@ exports.create = function(element) {
             textAreaDiv.style.left = bounds.l + 'px';
             // textAreaDiv.style.top = bounds.t + 'px';
             textAreaDiv.style.top = 0;
-            textArea.focus();
+			// Hack to prevent carota from getting focus on mobiles.
+			if (window.innerWidth > 1080) {
+				textArea.focus();
+			}
             var scrollDownBy = Math.max(0, bounds.t + bounds.h -
                     (element.scrollTop + element.clientHeight));
             if (scrollDownBy) {
@@ -397,7 +405,10 @@ exports.create = function(element) {
         textArea.select();
 
         setTimeout(function() {
-            textArea.focus();
+			// Hack to prevent carota from getting focus on mobiles.
+			if (window.innerWidth > 1080) {
+				textArea.focus();
+			}
         }, 10);
     };
 
@@ -447,7 +458,10 @@ exports.create = function(element) {
         selectDragStart = null;
         keyboardX = null;
         updateTextArea();
-        textArea.focus();
+		// Hack to prevent carota from getting focus on mobiles.
+		if (window.innerWidth > 1080) {
+			textArea.focus();
+		}
     });
 
     var nextCaretToggle = new Date().getTime(),
@@ -477,7 +491,6 @@ exports.create = function(element) {
             cachedWidth =element.clientWidth;
             cachedHeight = element.clientHeight;
         }
-
         if (requirePaint) {
             paint();
         }
