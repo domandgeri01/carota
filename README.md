@@ -1,4 +1,8 @@
-This is hacked to work with domandgeri. It Uses a single run, adds default options, line height and word spacing.
+This is hacked to work with domandgeri. It:
+
+ - Uses a single run
+ - adds default options for line height and word spacing.
+ - ups the div size used to measure the text.
 
 carota
 ======
