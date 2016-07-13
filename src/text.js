@@ -5,7 +5,6 @@ var runs = require('./runs');
 var getFontString = exports.getFontString = function(run) {
 
     var size = (run && run.size) || runs.defaultFormatting.size;
-
     if (run) {
         switch (run.script) {
             case 'super':
@@ -77,11 +76,12 @@ var measureText = exports.measureText = function(text, style, recursing) {
     block.style.height = '0';
 
     div.style.visibility = 'hidden';
+	// div.style.zIndex = 1000000;
     div.style.position = 'absolute';
     div.style.top = '0';
     div.style.left = '0';
-    div.style.width = '500px';
-    div.style.height = '200px';
+    div.style.width = '1500px';
+    div.style.height = '1500px';
 
     div.appendChild(span);
     div.appendChild(block);
@@ -116,7 +116,6 @@ var measureText = exports.measureText = function(text, style, recursing) {
 	var averageWidth;
 	if (recursing !== true && runs.defaultFormatting.wordSpacing !== undefined) {
 		averageWidth = letterCache('O', style, true).width;
-		console.log(runs.defaultFormatting.wordSpacing);
 		var spacedWidth = parseInt(averageWidth * runs.defaultFormatting.wordSpacing / 100, 10);
 		var difference = spacedWidth - averageWidth;
 		result.width = parseInt(result.width, 10) + parseInt(difference, 10);
