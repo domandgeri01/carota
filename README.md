@@ -3,6 +3,7 @@ This is hacked to work with domandgeri. It:
  - Uses a single run
  - adds default options for line height and word spacing.
  - ups the div size used to measure the text.
+ - Has some mobile code to prevent mobiles grabbing focus and presenting the keyboard (uses `window.InnerWidth < 1080`. Should be detecting touch)
 
 carota
 ======
