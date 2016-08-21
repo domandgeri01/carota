@@ -2,6 +2,7 @@ var per = require('per');
 var carotaDoc = require('./doc');
 var dom = require('./dom');
 var rect = require('./rect');
+var text = require('./text');
 
 setInterval(function() {
     var editors = document.querySelectorAll('.carotaEditorCanvas');
@@ -52,6 +53,8 @@ exports.create = function(element) {
         richClipboard = null,
         plainClipboard = null;
     
+	doc.textArea = textArea;
+	
     var toggles = {
         66: 'bold',
         73: 'italic',
@@ -500,5 +503,10 @@ exports.create = function(element) {
     update();
 
     doc.sendKey = handleKey;
+	
+	doc.setFontCache = function (fontCache) {
+		text.setCache(fontCache);
+	}
+	
     return doc;
 };
