@@ -1,9 +1,9 @@
 var runs = require('./runs');
+var fontCache = {};
 
 /*  Returns a font CSS/Canvas string based on the settings in a run
  */
 var getFontString = exports.getFontString = function(run) {
-
     var size = (run && run.size) || runs.defaultFormatting.size;
     if (run) {
         switch (run.script) {
@@ -142,18 +142,43 @@ var measureText = exports.measureText = function(text, style, recursing) {
     has to build up again (text measuring is by far the most costly operation we have to do).
 */
 var createCachedMeasureText = exports.createCachedMeasureText = function() {
-    var cache = {};
     return function(text, style, recursing) {
-        var key = style + '<>!&%' + text + runs.defaultFormatting.lineHeight + runs.defaultFormatting.wordSpacing;
-        var result = cache[key];
-        if (!result) {
-            cache[key] = result = measureText(text, style, recursing);
-        }
+		if (runs.defaultFormatting.font === 'sans-serif') {
+			return {ascent: 0, height: 0, descent: 0, width: 0};
+		}
+		
+		var cachedForFont = fontCache[runs.defaultFormatting.font];
+		var cachedForSize;
+		var cache;
+		
+		if (cachedForFont !== undefined && cachedForFont !== null) {
+			cachedForSize = cachedForFont[runs.defaultFormatting.size];
+		} else {
+			fontCache[runs.defaultFormatting.font] = {};
+		}
+		
+		if (cachedForSize !== undefined) {
+			cache = cachedForSize[text];
+		} else {
+			fontCache[runs.defaultFormatting.font][runs.defaultFormatting.size] = {};
+		}
+		
+		
+		if (cache !== undefined) {
+			result = cache;
+		} else {
+			result = measureText(text, style, recursing);
+			fontCache[runs.defaultFormatting.font][runs.defaultFormatting.size][text] = result;
+		}
         return result;
     };
 };
 var letterCache = createCachedMeasureText();
 exports.cachedMeasureText = createCachedMeasureText();
+
+exports.setCache = function (cache) {
+	fontCache = cache;
+};
 
 exports.measure = function(str, formatting) {
     return exports.cachedMeasureText(str, exports.getRunStyle(formatting));
