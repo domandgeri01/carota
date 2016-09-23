@@ -143,9 +143,9 @@ var measureText = exports.measureText = function(text, style, recursing) {
 */
 var createCachedMeasureText = exports.createCachedMeasureText = function() {
     return function(text, style, recursing) {
-		if (runs.defaultFormatting.font === 'sans-serif') {
-			return {ascent: 0, height: 0, descent: 0, width: 0};
-		}
+		// if (runs.defaultFormatting.font === 'sans-serif') {
+		//	return {ascent: 0, height: 0, descent: 0, width: 0};
+		// }
 		
 		var cachedForFont = fontCache[runs.defaultFormatting.font];
 		var cachedForSize;
