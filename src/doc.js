@@ -60,12 +60,18 @@ var prototype = node.derive({
 
         // Hack to remove any excess return characters that carota is inserting at the
         // end of the canvas.
-        while (this.words.length >= 2 
+		// don't remove extra return if carot is at the end of the doc.
+		var current_length = 0;
+		for(var i=0; i<this.words.length - 2; i++) {
+			current_length += this.words[i].length;
+		}
+		// current_length += 1;		
+        while (this.words.length >= 2 && carotPosition < current_length
             && (this.words[this.words.length - 2].text.plainText.charCodeAt(0) === 10
                 || this.words[this.words.length - 2].text.plainText.charCodeAt(0) === 13)
         ) {
-            this.words.splice(this.words.length - 2, 1);
-    }
+			this.words.splice(this.words.length - 2, 1);
+        }
 	
         this.layout();
         // this.contentChanged.fire();
