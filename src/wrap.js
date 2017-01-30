@@ -1,4 +1,6 @@
 var line = require('./line');
+var completeMaxAscent = 0;
+var completeMaxDescent = 0;
 
 /*  A stateful transformer function that accepts words and emits lines. If the first word
     is too wide, it will overhang; if width is zero or negative, there will be one word on
@@ -11,23 +13,27 @@ var line = require('./line');
 
 module.exports = function(left, top, width, ordinal, parent,
                           includeTerminator, initialAscent, initialDescent) {
-
     var lineBuffer = [],
         lineWidth = 0,
         maxAscent = initialAscent || 0,
         maxDescent = initialDescent || 0,
+		completeMaxAscent = 0,
+		completeMaxDescent = 0,
         quit,
         lastNewLineHeight = 0,
         y = top;
-
+		
     var store = function(word, emit) {
         lineBuffer.push(word);
         lineWidth += word.width;
-        maxAscent = Math.max(maxAscent, word.ascent);
-        maxDescent = Math.max(maxDescent, word.descent);
+        maxAscent = Math.max(maxAscent, word.ascent, completeMaxAscent);
+        maxDescent = Math.max(maxDescent, word.descent, completeMaxDescent);
+        completeMaxAscent = maxAscent;
+        completeMaxDescent = maxDescent;
+			
         if (word.isNewLine()) {
             send(emit);
-            lastNewLineHeight = word.ascent + word.descent;
+            lastNewLineHeight = maxAscent + maxDescent;
         }
     };
 
@@ -46,6 +52,7 @@ module.exports = function(left, top, width, ordinal, parent,
     var consumer = null;
 
     return function(emit, inputWord) {
+		
         if (consumer) {
             lastNewLineHeight = 0;
             var node = consumer(inputWord);
@@ -62,7 +69,7 @@ module.exports = function(left, top, width, ordinal, parent,
                 if (lineBuffer.length) {
                     send(emit);
                 } else {
-                    y += lastNewLineHeight;
+                    y += lastNewLineHeight;				
                 }
                 consumer = code.block(left, y, width, ordinal, parent, inputWord.codeFormatting());
                 lastNewLineHeight = 0;
