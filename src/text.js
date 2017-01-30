@@ -1,5 +1,7 @@
 var runs = require('./runs');
 var fontCache = {};
+var lineHeight = 0;
+var wordSpacing = 0;
 
 /*  Returns a font CSS/Canvas string based on the settings in a run
  */
@@ -65,6 +67,7 @@ var averageWidth = null;
     would affect the dimensions of the whole page.
  */
 var measureText = exports.measureText = function(text, style, recursing) {
+	console.log('measure text', runs.defaultFormatting.lineHeight);
     var span, block, div;
 
     span = document.createElement('span');
@@ -105,6 +108,7 @@ var measureText = exports.measureText = function(text, style, recursing) {
     }
 	
 	// Hack to apply the lineSize. This only works for one size per document.
+	lineHeight = runs.defaultFormatting.lineHeight;
 	if (runs.defaultFormatting.lineHeight !== undefined) {
 		result.ascent = parseInt(result.ascent * runs.defaultFormatting.lineHeight / 100, 10);
 		result.descent = parseInt(result.descent * runs.defaultFormatting.lineHeight / 100, 10);
@@ -114,6 +118,7 @@ var measureText = exports.measureText = function(text, style, recursing) {
 	// Hack to apply word spacing. 
 	// Uses the width of an uppercase O as an average width to apply the word spacing to.
 	var averageWidth;
+	wordSpacing = runs.defaultFormatting.wordSpacing;
 	if (recursing !== true && runs.defaultFormatting.wordSpacing !== undefined) {
 		averageWidth = letterCache('O', style, true).width;
 		var spacedWidth = parseInt(averageWidth * runs.defaultFormatting.wordSpacing / 100, 10);
@@ -164,7 +169,7 @@ var createCachedMeasureText = exports.createCachedMeasureText = function() {
 		}
 		
 		
-		if (cache !== undefined) {
+		if (cache !== undefined && runs.defaultFormatting.wordSpacing === wordSpacing && runs.defaultFormatting.lineHeight === lineHeight) {
 			result = cache;
 		} else {
 			result = measureText(text, style, recursing);
