@@ -67,7 +67,6 @@ var averageWidth = null;
     would affect the dimensions of the whole page.
  */
 var measureText = exports.measureText = function(text, style, recursing) {
-	console.log('measure text', runs.defaultFormatting.lineHeight);
     var span, block, div;
 
     span = document.createElement('span');
@@ -152,28 +151,33 @@ var createCachedMeasureText = exports.createCachedMeasureText = function() {
 		//	return {ascent: 0, height: 0, descent: 0, width: 0};
 		// }
 		
-		var cachedForFont = fontCache[runs.defaultFormatting.font];
-		var cachedForSize;
-		var cache;
-		
-		if (cachedForFont !== undefined && cachedForFont !== null) {
-			cachedForSize = cachedForFont[runs.defaultFormatting.size];
-		} else {
-			fontCache[runs.defaultFormatting.font] = {};
-		}
-		
-		if (cachedForSize !== undefined) {
-			cache = cachedForSize[text];
-		} else {
-			fontCache[runs.defaultFormatting.font][runs.defaultFormatting.size] = {};
-		}
-		
-		
-		if (cache !== undefined && runs.defaultFormatting.wordSpacing === wordSpacing && runs.defaultFormatting.lineHeight === lineHeight) {
-			result = cache;
-		} else {
+		if (runs.defaultFormatting.useCache === false) {
 			result = measureText(text, style, recursing);
-			fontCache[runs.defaultFormatting.font][runs.defaultFormatting.size][text] = result;
+		} else {
+		
+			var cachedForFont = fontCache[runs.defaultFormatting.font];
+			var cachedForSize;
+			var cache;
+				
+			if (cachedForFont !== undefined && cachedForFont !== null) {
+				cachedForSize = cachedForFont[runs.defaultFormatting.size];
+			} else {
+				fontCache[runs.defaultFormatting.font] = {};
+			}
+			
+			if (cachedForSize !== undefined) {
+				cache = cachedForSize[text];
+			} else {
+				fontCache[runs.defaultFormatting.font][runs.defaultFormatting.size] = {};
+			}
+			
+			// Measuring text with bestFit at the moment.
+			if (cache !== undefined && runs.defaultFormatting.wordSpacing === wordSpacing && runs.defaultFormatting.lineHeight === lineHeight) {		
+				result = cache;
+			} else {			
+				result = measureText(text, style, recursing);
+				fontCache[runs.defaultFormatting.font][runs.defaultFormatting.size][text] = result;
+			}
 		}
         return result;
     };
