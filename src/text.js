@@ -1,6 +1,5 @@
 var runs = require('./runs');
 var fontCache = {};
-var lineHeight = 0;
 var wordSpacing = 0;
 
 /*  Returns a font CSS/Canvas string based on the settings in a run
@@ -84,7 +83,6 @@ var measureText = exports.measureText = function(text, style, recursing) {
     div.style.left = '0';
     div.style.width = '1500px';
     div.style.height = '1500px';
-
     div.appendChild(span);
     div.appendChild(block);
     document.body.appendChild(div);
@@ -105,14 +103,6 @@ var measureText = exports.measureText = function(text, style, recursing) {
         div.parentNode.removeChild(div);
         div = null;
     }
-	
-	// Hack to apply the lineSize. This only works for one size per document.
-	lineHeight = runs.defaultFormatting.lineHeight;
-	if (runs.defaultFormatting.lineHeight !== undefined) {
-		result.ascent = parseInt(result.ascent * runs.defaultFormatting.lineHeight / 100, 10);
-		result.descent = parseInt(result.descent * runs.defaultFormatting.lineHeight / 100, 10);
-		result.height = result.ascent + result.descent;
-	}
 	
 	// Hack to apply word spacing. 
 	// Uses the width of an uppercase O as an average width to apply the word spacing to.
@@ -157,7 +147,7 @@ var createCachedMeasureText = exports.createCachedMeasureText = function() {
 		
 			var cachedForFont = fontCache[runs.defaultFormatting.font];
 			var cachedForSize;
-			var cache;
+			var cache;					
 				
 			if (cachedForFont !== undefined && cachedForFont !== null) {
 				cachedForSize = cachedForFont[runs.defaultFormatting.size];
@@ -172,14 +162,24 @@ var createCachedMeasureText = exports.createCachedMeasureText = function() {
 			}
 			
 			// Measuring text with bestFit at the moment.
-			if (cache !== undefined && runs.defaultFormatting.wordSpacing === wordSpacing && runs.defaultFormatting.lineHeight === lineHeight) {		
+			if (cache !== undefined && runs.defaultFormatting.wordSpacing === wordSpacing) {		
 				result = cache;
 			} else {			
 				result = measureText(text, style, recursing);
 				fontCache[runs.defaultFormatting.font][runs.defaultFormatting.size][text] = result;
 			}
 		}
-        return result;
+		// Hack to apply the lineSize to cache. This only works for one size per document.
+		// Applied every time as the cache sizes are based on a lineHeight of 100%;
+		lineHeight = runs.defaultFormatting.lineHeight;
+		var finalResult = JSON.parse(JSON.stringify(result));
+		if (runs.defaultFormatting.lineHeight !== undefined) {
+			finalResult.ascent = parseInt(finalResult.ascent * lineHeight / 100, 10);
+			finalResult.descent = parseInt(finalResult.descent * lineHeight / 100, 10);
+			finalResult.height = finalResult.ascent + finalResult.descent;
+		}	
+		
+        return finalResult;
     };
 };
 var letterCache = createCachedMeasureText();
