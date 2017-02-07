@@ -71,27 +71,32 @@ var measureText = exports.measureText = function(text, style, recursing) {
     span = document.createElement('span');
     block = document.createElement('div');
     div = document.createElement('div');
-
+	
     block.style.display = 'inline-block';
     block.style.width = '1px';
     block.style.height = '0';
 
     div.style.visibility = 'hidden';
-	// div.style.zIndex = 1000000;
+	div.style.zIndex = 1000000;
     div.style.position = 'absolute';
     div.style.top = '0';
-    div.style.left = '0';
-    div.style.width = '1500px';
-    div.style.height = '1500px';
+    div.style.right = '0';
+    div.style.width = '1000px';
+    div.style.height = '1000px';
+	
     div.appendChild(span);
     div.appendChild(block);
     document.body.appendChild(div);
     try {
         span.setAttribute('style', style);
+		
+		span.style.display = 'inline-block';
+	    var bodyLineHeight = document.body.style.lineHeight;
+		span.style.lineHeight =  bodyLineHeight;
 
         span.innerHTML = '';
         span.appendChild(document.createTextNode(text.replace(/\s/g, nbsp)));
-
+	
         var result = {};
         block.style.verticalAlign = 'baseline';
         result.ascent = (block.offsetTop - span.offsetTop);
@@ -99,9 +104,10 @@ var measureText = exports.measureText = function(text, style, recursing) {
         result.height = (block.offsetTop - span.offsetTop);
         result.descent = result.height - result.ascent;
         result.width = span.offsetWidth;
+	
     } finally {
-        div.parentNode.removeChild(div);
-        div = null;
+		div.parentNode.removeChild(div);
+		div = null;
     }
 	
 	// Hack to apply word spacing. 
