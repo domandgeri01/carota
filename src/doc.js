@@ -61,18 +61,40 @@ var prototype = node.derive({
         // Hack to remove any excess return characters that carota is inserting at the
         // end of the canvas.
 		// don't remove extra return if carot is at the end of the doc.
+		// Note: there should always be one return at the end of the doc - carota requires it.
 		var current_length = 0;
-		for(var i=0; i<this.words.length - 2; i++) {
+		for(var i=0; i<this.words.length - 1; i++) {
 			current_length += this.words[i].length;
 		}
-		// current_length += 1;		
-        while (this.words.length >= 2 && carotPosition < current_length
-            && (this.words[this.words.length - 2].text.plainText.charCodeAt(0) === 10
-                || this.words[this.words.length - 2].text.plainText.charCodeAt(0) === 13)
-        ) {
-			this.words.splice(this.words.length - 2, 1);
-        }
-	
+		
+		var isReturn = function (words, position) {
+			return words[position]  
+				&& (words[position].text.plainText.charCodeAt(0) === 10
+					|| words[position].text.plainText.charCodeAt(0) === 13);
+		};
+		
+		var isThirdFromLastAReturn = false;
+		if (isReturn(this.words, this.words.length - 1) 
+			&& isReturn(this.words, this.words.length - 2) 
+			&& isReturn(this.words, this.words.length - 3)
+		) {
+			isThirdFromLastAReturn = true;
+		}
+		
+		if (this.words.length >= 1 
+			&&  (carotPosition < current_length - 1 // The last charcter is the always present carota return.
+				// Don't remove the return if the carotPosition is on it
+				|| (carotPosition === current_length - 1 && isThirdFromLastAReturn === false))
+		) {
+			var removeExcessReturns = function () {
+				if (isReturn(this.words, this.words.length - 2)) {
+					const removed = this.words.splice(this.words.length - 2, 1);			
+					removeExcessReturns.apply(this);
+				}
+			};
+			removeExcessReturns.apply(this);
+		}
+		
         this.layout();
         // this.contentChanged.fire();
         this.select(carotPosition, carotPosition, takeFocus);
