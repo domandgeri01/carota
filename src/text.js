@@ -17,6 +17,7 @@ var getFontString = exports.getFontString = function(run) {
 
     return (run && run.italic ? 'italic ' : '') +
            (run && run.bold ? 'bold ' : '') + ' ' +
+            // size + 'pt "EmojiOne Color", ' +
             size + 'pt ' +
           ((run && run.font) || runs.defaultFormatting.font);
 };
@@ -67,7 +68,6 @@ var averageWidth = null;
  */
 var measureText = exports.measureText = function(text, style, recursing) {
     var span, block, div;
-
     span = document.createElement('span');
     block = document.createElement('div');
     div = document.createElement('div');
@@ -76,35 +76,37 @@ var measureText = exports.measureText = function(text, style, recursing) {
     block.style.width = '1px';
     block.style.height = '0';
 
-    div.style.visibility = 'hidden';
+    // div.style.visibility = 'hidden';
 	div.style.zIndex = 1000000;
     div.style.position = 'absolute';
     div.style.top = '0';
     div.style.right = '0';
     div.style.width = '1000px';
-    div.style.height = '1000px';
+    div.style.height = '200px';
 	
     div.appendChild(span);
     div.appendChild(block);
     document.body.appendChild(div);
     try {
+        var result = {};
         span.setAttribute('style', style);
 		
 		span.style.display = 'inline-block';
 	    var bodyLineHeight = document.body.style.lineHeight;
-		span.style.lineHeight =  bodyLineHeight;
-
-        span.innerHTML = '';
-        span.appendChild(document.createTextNode(text.replace(/\s/g, nbsp)));
-	
-        var result = {};
+		span.style.lineHeight = bodyLineHeight;
+		
+		// Emoji don't measure well. Measuring the height with a normal character.
+        span.innerHTML = 'O';
         block.style.verticalAlign = 'baseline';
         result.ascent = (block.offsetTop - span.offsetTop);
         block.style.verticalAlign = 'bottom';
         result.height = (block.offsetTop - span.offsetTop);
         result.descent = result.height - result.ascent;
+		span.innerHTML = ''
+		
+		
+        span.appendChild(document.createTextNode(text.replace(/\s/g, nbsp)));
         result.width = span.offsetWidth;
-	
     } finally {
 		div.parentNode.removeChild(div);
 		div = null;
