@@ -101,7 +101,7 @@ var measureText = exports.measureText = function(text, style, recursing) {
       span.setAttribute('style', style);
 
       span.style.display = 'inline-block';
-      var bodyLineHeight = document.body.style.lineHeight;
+      var bodyLineHeight = 1.42857; // hard coded due to next.js not being able to set it on the body
       span.style.lineHeight = bodyLineHeight;
 
       // Emoji don't measure well. Measuring the height with a normal character.
